@@ -2,509 +2,534 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Физмат-челлендж | ЛАП №135</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            background: radial-gradient(circle at 10% 20%, #0a0f2a, #030617);
+            font-family: 'Segoe UI', system-ui, 'Roboto', sans-serif;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
             overflow-x: hidden;
+            background: #0a0c1a;
         }
 
-        /* Анимации */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes bouncePop {
-            0% {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            60% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% {
-                box-shadow: 0 0 5px rgba(72, 187, 255, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(72, 187, 255, 0.7);
-            }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        @keyframes confetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-
-        .animate-fade-up {
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        .animate-bounce {
-            animation: bouncePop 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-
-        .animate-slide-left {
-            animation: slideInLeft 0.4s ease-out;
-        }
-
-        .animate-slide-right {
-            animation: slideInRight 0.4s ease-out;
-        }
-
-        .animate-glow {
-            animation: glowPulse 1.5s infinite;
-        }
-
-        .animate-shake {
-            animation: shake 0.3s ease-in-out;
-        }
-
-        /* Конфетти-контейнер */
-        .confetti-container {
+        /* ===== ЗАСТАВКА (просто тёмный фон с частицами и формулами) ===== */
+        #introScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-            overflow: hidden;
-        }
-
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(135deg, #ffd966, #ffa447);
-            top: -10px;
-            animation: confetti 2.5s ease-out forwards;
-        }
-
-        /* Основной контейнер */
-        .game-container {
-            max-width: 680px;
-            width: 100%;
-            margin: 0 auto;
-            background: rgba(15, 25, 45, 0.75);
-            backdrop-filter: blur(12px);
-            border-radius: 48px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(72, 187, 255, 0.2);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .screen {
-            padding: 28px 24px 36px;
-            transition: opacity 0.2s;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Логотип */
-        .logo-area {
+            background: radial-gradient(ellipse at 30% 40%, #050a1a, #000000);
+            z-index: 200;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            margin-bottom: 20px;
+            align-items: center;
+            transition: opacity 1.2s ease-in-out;
         }
-        .logo-img {
-            max-width: 120px;
-            width: 100%;
-            height: auto;
-            border-radius: 32px;
+
+        .formula {
+            position: absolute;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: rgba(100, 180, 255, 0.4);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: floatFormula linear infinite;
+            font-family: monospace;
+        }
+
+        @keyframes floatFormula {
+            0% { transform: translateX(-20vw) translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.4; }
+            100% { transform: translateX(120vw) translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        .intro-logo {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1);
+            object-fit: contain;
+            border-radius: 50%;
             background: rgba(255,255,255,0.05);
-            padding: 8px;
-            transition: all 0.2s;
+            padding: 10px;
         }
-        .title {
-            font-size: 2rem;
+
+        .intro-logo.show {
+            opacity: 1;
+            transform: scale(1);
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+        }
+
+        .typewriter-text {
+            font-size: 2.5rem;
             font-weight: 800;
             text-align: center;
-            background: linear-gradient(135deg, #FFFFFF, #7FC9FF);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #9bb5d4;
-            font-weight: 500;
-            margin-bottom: 28px;
-            font-size: 1rem;
-        }
-        .rules-card {
-            background: rgba(0, 20, 40, 0.7);
-            border-radius: 32px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid rgba(72, 187, 255, 0.3);
-            backdrop-filter: blur(4px);
-        }
-        .rules-card p {
-            color: #cde3ff;
-            margin: 10px 0;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn {
-            background: linear-gradient(105deg, #2b5f9e, #1e3b6b);
-            border: none;
-            width: 100%;
-            padding: 16px;
-            font-size: 1.3rem;
-            font-weight: 700;
             color: white;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            margin-top: 16px;
-        }
-        .btn:active {
-            transform: scale(0.97);
-        }
-        .contacts {
-            margin-top: 32px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            font-size: 0.8rem;
-        }
-        .contacts a {
-            color: #8bb9fe;
-            text-decoration: none;
-            background: rgba(255,255,255,0.08);
-            padding: 6px 12px;
-            border-radius: 40px;
-            transition: 0.2s;
-            font-weight: 500;
-        }
-        .contacts a:hover {
-            background: #2b4f8a;
-            color: white;
+            margin-bottom: 20px;
+            min-height: 100px;
+            letter-spacing: 2px;
         }
 
-        /* Игровой экран */
+        .typewriter-sub {
+            font-size: 1.2rem;
+            color: #aac8ff;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .typewriter-sub.show {
+            opacity: 1;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #00e676, #00c853);
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a2a1a;
+            border-radius: 60px;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 0 20px rgba(0,230,118,0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .btn-start.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-start:active {
+            transform: scale(0.96);
+        }
+
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+        }
+
+        /* ===== ПЕРЕХОД ===== */
+        #transitionScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .satellite-view {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #0a0f2a, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .satellite-view img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .satellite-text {
+            position: absolute;
+            color: white;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 30px;
+            bottom: 50px;
+            font-family: monospace;
+        }
+
+        .lyceum-zoom {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(1.5);
+            transition: all 1.5s ease-out;
+            z-index: 2;
+            background: #000;
+        }
+
+        .lyceum-zoom.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .lyceum-zoom img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== ИГРА ===== */
+        #gameScreen {
+            min-height: 100vh;
+            display: none;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease-in-out;
+            background: linear-gradient(rgba(10,15,30,0.85), rgba(5,10,25,0.9));
+        }
+
+        .game-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(15, 25, 45, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 48px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             padding: 12px 16px;
             border-radius: 60px;
             margin-bottom: 24px;
             font-weight: bold;
+            color: white;
         }
-        .progress-text, .chance-text {
-            background: #0b1425;
-            padding: 5px 14px;
-            border-radius: 30px;
-            color: #bbd9ff;
-        }
-        .chance-text span {
-            color: #ffd966;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
+
         .question-text {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            line-height: 1.3;
-            margin: 24px 0 28px;
-            color: #f0f6ff;
+            color: white;
+            margin: 20px 0;
         }
+
         .options-grid {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 12px;
         }
+
         .option-btn {
             background: #0e1a2b;
             border: 1px solid #2c4b7c;
             border-radius: 60px;
             padding: 14px 20px;
-            text-align: left;
+            color: white;
             font-size: 1rem;
-            font-weight: 500;
-            color: #e2efff;
-            transition: all 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
             cursor: pointer;
+            transition: 0.2s;
         }
+
         .option-btn:active {
             transform: scale(0.98);
             background: #1f4970;
         }
-        .option-btn:hover {
-            background: #1a3557;
-            transform: translateX(5px);
-        }
-        .disabled-opt {
-            pointer-events: none;
-            opacity: 0.6;
-        }
+
         .feedback-message {
             background: #071126cc;
             border-radius: 28px;
-            padding: 14px 18px;
-            margin: 15px 0;
-            font-size: 0.95rem;
+            padding: 14px;
+            margin-top: 15px;
+            color: white;
             border-left: 5px solid #ffb347;
-            backdrop-filter: blur(4px);
-            animation: fadeInUp 0.3s ease-out;
-        }
-        .small-btn {
-            background: rgba(255,255,255,0.12);
-            border: 1px solid #4c6e9e;
-            border-radius: 40px;
-            padding: 12px;
-            font-weight: 600;
-            margin-top: 8px;
         }
 
-        /* Финальный экран */
+        .btn {
+            background: #2b5f9e;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
         .final-chance {
             font-size: 3rem;
-            font-weight: 800;
+            font-weight: bold;
             text-align: center;
             background: linear-gradient(135deg, #FFD966, #FFA447);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin: 10px 0;
-            animation: bouncePop 0.5s ease-out;
-        }
-        .input-field {
-            width: 100%;
-            padding: 16px 20px;
-            border-radius: 60px;
-            background: #0a1022;
-            border: 1px solid #2f5582;
-            color: white;
-            font-size: 1rem;
-            margin: 16px 0;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .input-field:focus {
-            border-color: #7FC9FF;
-            box-shadow: 0 0 10px rgba(127, 201, 255, 0.3);
-        }
-        .flex-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .flex-row .btn {
-            flex: 1;
-            margin-top: 0;
-        }
-        .apply-link {
-            display: inline-block;
-            text-align: center;
-            background: #2b5f9e;
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 40px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .apply-link:hover {
-            transform: scale(1.02);
-            background: #3a75b8;
-        }
-        hr {
-            border-color: #23456b;
-            margin: 20px 0;
-        }
-        @media (max-width: 550px) {
-            .screen { padding: 20px 18px 28px; }
-            .question-text { font-size: 1.3rem; }
-            .title { font-size: 1.7rem; }
-        }
-        footer small {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.7rem;
-            color: #6c86a3;
         }
 
-        /* Новая анимация для правильного ответа */
-        .correct-highlight {
-            animation: bouncePop 0.4s ease-out;
+        .contacts a {
+            color: #8bb9fe;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-<div class="game-container" id="app">
-    <!-- ПРИВЕТСТВЕННЫЙ ЭКРАН -->
-    <div id="welcomeScreen" class="screen animate-fade-up">
-        <div class="logo-area">
-            <img class="logo-img" 
-                 src="https://disk.yandex.ru/i/soWHYXCDwJ33XQ" 
-                 alt="Эмблема ЛАП №135"
-                 onerror="this.style.display='none'">
-        </div>
-        <div class="title">Физмат-челлендж</div>
-        <div class="subtitle">ГБОУ СО "ЛАП № 135 (Базовая школа РАН)"</div>
-        <div class="rules-card animate-slide-left">
-            <p>📐 <strong>5 случайных вопросов</strong> по физике и математике</p>
-            <p>🎯 За каждый правильный ответ <strong>+18%</strong> к шансу поступления</p>
-            <p>⚡ Максимальный шанс — <strong>90%</strong></p>
-            <p>🧠 После ответа — пояснение и поддержка</p>
-            <p>🏆 Проверь себя и получи шанс стать лицеистом!</p>
-        </div>
-        <button class="btn animate-glow" id="startGameBtn">🎮 ИГРАТЬ</button>
-        <div class="contacts">
-            <a href="https://lap-samara.ru" target="_blank">🌐 Сайт</a>
-            <a href="https://vk.com/lap135" target="_blank">📘 VK</a>
-            <a href="https://t.me/s/lap135" target="_blank">📱 Telegram</a>
-            <a href="https://max.ru/id6312021960_gos" target="_blank">⭐ MAX</a>
-            <a href="tel:+78469954245">📞 +7 (846) 995-42-45</a>
-        </div>
-        <footer><small>ЛАП №135 | Самара | Лицей авиационного профиля</small></footer>
-    </div>
+<div id="introScreen">
+    <div class="flash" id="flash"></div>
+    <img class="intro-logo" id="introLogo" src="logo.png" alt="ЛАП №135" onerror="this.src='https://placehold.co/160x160/0a1a2a/white?text=ЛАП'">
+    <div class="typewriter-text" id="typewriter"></div>
+    <div class="typewriter-sub" id="typewriterSub">Проверь свои шансы!</div>
+    <button class="btn-start" id="startIntroBtn">🚀 Начать!</button>
+</div>
 
-    <!-- ИГРОВОЙ ЭКРАН -->
-    <div id="gameScreen" class="screen hidden">
+<div id="transitionScreen">
+    <div class="satellite-view">
+        <img id="satelliteImg" src="satellite.jpg" alt="Спутник">
+        <div class="satellite-text">🛰️ Снимок со спутника...</div>
+    </div>
+    <div class="lyceum-zoom" id="lyceumZoom">
+        <img id="lyceumImg" src="lyceum.jpg" alt="Лицей №135">
+    </div>
+</div>
+
+<div id="gameScreen">
+    <div class="game-container">
         <div class="stats-bar">
-            <div class="progress-text" id="questionCounter">Вопрос 1 / 5</div>
-            <div class="chance-text">🎲 Шанс: <span id="currentChance">0</span>%</div>
+            <span id="questionCounter">Вопрос 1 / 5</span>
+            <span>🎲 Шанс: <span id="currentChance">0</span>%</span>
         </div>
-        <div class="question-text" id="questionText">Загрузка...</div>
+        <div class="question-text" id="questionText"></div>
         <div class="options-grid" id="optionsContainer"></div>
-        <button class="btn small-btn" id="abortGameBtn">✖️ Завершить игру</button>
+        <button class="btn" id="abortGameBtn">✖️ Завершить игру</button>
         <div id="feedbackArea" class="feedback-message hidden"></div>
-    </div>
-
-    <!-- ФИНАЛЬНЫЙ ЭКРАН -->
-    <div id="finalScreen" class="screen hidden">
-        <div class="title" style="font-size:1.8rem;">📊 Ваш результат</div>
-        <div class="final-chance" id="finalPercent">0%</div>
-        <p id="finalMessage" style="text-align:center; margin:10px 0; color:#c8ddff;">Ободряющее сообщение</p>
-        <input type="text" id="contactInput" class="input-field" placeholder="Телефон или @username (например, +79991234567 или @ivan)" autocomplete="off">
-        <div class="flex-row">
-            <button class="btn" id="submitContactBtn">📩 Оставить контакт</button>
-            <button class="btn" id="restartBtn">🔄 Сыграть ещё раз</button>
-        </div>
-        <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank" class="apply-link">📝 Подать заявку через форму Яндекс</a>
-        <div class="contacts" style="margin-top: 24px;">
-            <a href="https://lap-samara.ru" target="_blank">Сайт лицея</a>
-            <a href="https://vk.com/lap135" target="_blank">ВКонтакте</a>
-            <a href="https://t.me/s/lap135" target="_blank">Telegram-канал</a>
-        </div>
     </div>
 </div>
 
 <script>
-    // ---------- НОВЫЙ БАНК ВОПРОСОВ (20 штук) ----------
-    const QUESTION_BANK = [
-        { text: "Что тяжелее: 1 кг пуха или 1 кг железа?", options: ["Пух", "Железо", "Одинаково", "Зависит от места на Земле"], correct: 2, explanation: "Килограмм есть килограмм. Масса одинаковая — 1 кг.", comfort: "Не переживай, это ловушка, в которую попадается каждый второй." },
-        { text: "Если вы подниметесь на гору высотой 1 км, вы похудеете?", options: ["Да, заметно", "Да, но совсем чуть-чуть, на грамм", "Нет, вес не изменится", "Нет, даже потолстеете"], correct: 1, explanation: "Сила тяжести с высотой чуть-чуть уменьшается, поэтому вес станет меньше на несколько граммов.", comfort: "Отличная идея — худеть, гуляя в горы! Но придётся всё равно считать калории." },
-        { text: "Что быстрее нагреется на солнце: белая футболка или чёрная?", options: ["Белая", "Чёрная", "Одинаково", "Зависит от ветра"], correct: 1, explanation: "Чёрный цвет поглощает почти все лучи света и превращает их в тепло. Белый — отражает.", comfort: "Наверное, ты просто любишь чёрный цвет. Летом это дорого обходится!" },
-        { text: "У вас есть корзина с 5 яблоками. Как разделить их между 5 детьми так, чтобы одно яблоко осталось в корзине?", options: ["Отдать 4 яблока, а пятое выбросить", "Отдать яблоки вместе с корзиной", "Съесть одно яблоко самому", "Так разделить нельзя"], correct: 1, explanation: "Четырём детям отдать по яблоку, а пятому — яблоко вместе с корзиной.", comfort: "Хитрая логическая задачка. Теперь ты будешь знать — корзину тоже можно раздавать!" },
-        { text: "Что произойдёт с обычными механическими часами, если их перенести из квартиры в сауну?", options: ["Начнут спешить", "Начнут отставать", "Остановятся", "Будут идти точно так же"], correct: 0, explanation: "Металлические детали от нагрева расширяются, маятник или пружина меняют свойства, часы спешат.", comfort: "Сауна — место для отдыха, а не для точного хронометража." },
-        { text: "Камень бросили вертикально вверх. В самой верхней точке его скорость равна нулю. Чему равно ускорение камня в этот момент?", options: ["0", "9,8 м/с² вниз", "9,8 м/с² вверх", "Зависит от массы камня"], correct: 1, explanation: "Ускорение свободного падения действует на камень всегда, даже в верхней точке.", comfort: "Многие думают, что раз скорость ноль — то и ускорения нет. Но Земля никуда не девается!" },
-        { text: "Что длиннее: окружность Земли по экватору или меридиану?", options: ["Экватор", "Меридиан", "Одинаково", "Точно неизвестно"], correct: 0, explanation: "Земля сплюснута у полюсов, поэтому экватор чуть длиннее меридиана — примерно на 67 км.", comfort: "Честно говоря, разница настолько мала, что на картах её не видно." },
-        { text: "Почему в сильный мороз металлические предметы на улице кажутся холоднее деревянных?", options: ["Металл холоднее по температуре", "Металл быстрее отводит тепло от руки", "Дерево нагревается солнцем", "Это просто ощущение, разницы нет"], correct: 1, explanation: "Металл отлично проводит тепло и быстро «вытягивает» его из руки.", comfort: "Ты просто слишком честный: если холодно — сразу говоришь об этом." },
-        { text: "Представьте Землю как идеальный шар. Вы обмотали её верёвкой по экватору. На сколько нужно удлинить верёвку, чтобы она провисла ровно на 1 метр над поверхностью?", options: ["На 6,28 метра", "На 1 метр", "На 628 метров", "На 1 километр"], correct: 0, explanation: "Из формулы C = 2πR увеличение радиуса на 1 м даёт удлинение на 2π ≈ 6,28 м.", comfort: "Интуиция подсказывала километры, а математика говорит — 6 метров. Удивительно, правда?" },
-        { text: "Почему вечером и утром солнце на небе выглядит больше, чем в полдень?", options: ["Оно действительно ближе к Земле", "Это иллюзия из-за сравнения с предметами на горизонте", "Из-за преломления света в атмосфере", "Вечером солнце меняет размер"], correct: 1, explanation: "На горизонте мы сравниваем солнце с деревьями и домами — оно кажется огромным.", comfort: "Твой глаз иногда обманывает тебя. И это нормально — так устроено зрение." },
-        { text: "Шахматная доска состоит из 64 клеток. Если на первую положить 1 зерно, на вторую — 2, на третью — 4, и так удваивать, сколько всего зёрен получится?", options: ["64", "128", "256", "Огромное число — больше миллиарда"], correct: 3, explanation: "Сумма степеней двойки от 2⁰ до 2⁶³ даёт число больше 9 миллиардов миллиардов.", comfort: "Ты только что попытался сосчитать рисовые зёрна на шахматной доске. Поздравляю, теперь ты знаешь, что такое экспоненциальный рост!" },
-        { text: "В какой воде проще плавать — в морской или речной?", options: ["В морской", "В речной", "Одинаково", "Зависит от температуры воды"], correct: 0, explanation: "Морская вода плотнее из-за соли. Выталкивающая сила больше, поэтому плавать легче.", comfort: "Если ты плохо плаваешь в реке — просто поезжай к морю. Шутка." },
-        { text: "Можно ли вскипятить воду, нагревая её сверху?", options: ["Можно, но медленнее", "Нельзя, нагреется только верхний слой", "Можно, если очень сильно нагреть", "Нельзя, вода испарится раньше"], correct: 1, explanation: "Тёплая вода легче холодной и остаётся сверху. Конвекция не работает, кипения не будет.", comfort: "Кастрюли ставят на огонь снизу не просто так. Ты только что понял, почему — уже круто!" },
-        { text: "Что такое «парадокс близнецов» в физике?", options: ["Один близнец старше другого, потому что путешествовал в космосе", "Близнецы не могут существовать по законам физики", "Два близнеца всегда рождаются в разное время", "Физики не любят близнецов"], correct: 0, explanation: "Если один близнец улетит в космос с околосветовой скоростью, он вернётся моложе брата-домоседа.", comfort: "Вряд ли ты собираешься разгоняться до скорости света. Так что с возрастом близнеца всё будет в порядке!" },
-        { text: "Какой великий физик случайно открыл рентгеновское излучение?", options: ["Мария Склодовская-Кюри", "Никола Тесла", "Вильгельм Рентген", "Альберт Эйнштейн"], correct: 2, explanation: "В 1895 году Рентген заметил свечение экрана в другой комнате и понял, что открыл новые лучи.", comfort: "История науки полна случайных открытий. Может, ты тоже что-то такое откроешь — по неосторожности!" },
-        { text: "Если вы едете в поезде и подпрыгнете на месте, куда вы приземлитесь?", options: ["На то же место", "Немного назад", "Немного вперёд", "Зависит от скорости поезда"], correct: 0, explanation: "Вы движетесь вместе с поездом с одинаковой скоростью. Прыжок не меняет скорость по горизонтали.", comfort: "Многие боятся, что «улетят назад». Но физика нас не обманывает — всё честно!" },
-        { text: "Почему в комнате с закрытой дверью и работающим холодильником станет теплее, а не холоднее?", options: ["Холодильник не охлаждает комнату", "Холодильник забирает тепло изнутри, но отдаёт его снаружи — в ту же комнату", "Холодильник сломан", "Тепло не может исчезнуть"], correct: 1, explanation: "Холодильник не уничтожает тепло, а переносит его. В замкнутой комнате температура повысится.", comfort: "Мысль прохладная, а результат — нет. Ты понял главное: чудес не бывает." },
-        { text: "Какой природный процесс объясняется эффектом Доплера?", options: ["Радуга", "Гроза", "Изменение звука сирены при приближении машины", "Полярное сияние"], correct: 2, explanation: "Когда источник звука приближается, волны сжимаются — тон выше. Удаляется — тон ниже.", comfort: "Сирена скорой помощи — лучший учитель физики. Просто прислушайся в следующий раз!" },
-        { text: "Если вы захотите увидеть свою спину, сколько зеркал вам понадобится?", options: ["Одно", "Два", "Три", "Ни одного, спину не увидеть"], correct: 1, explanation: "Два зеркала под углом 90° позволяют увидеть себя со спины. Луч отражается дважды.", comfort: "Спину, может, и увидишь, а вот уши — далеко не факт. Это уже к биологии вопрос." },
-        { text: "В каком году Галилео Галилей впервые использовал телескоп для наблюдения за небесными телами?", options: ["1509", "1609", "1709", "1809"], correct: 1, explanation: "В 1609 году Галилей узнал об изобретении телескопа в Голландии и создал свой, с 20-кратным увеличением.", comfort: "Галилей не изобрёл телескоп, но сделал его знаменитым. Как ты сейчас — не изобрёл физику, но точно её понимаешь!" }
-    ];
+    const gameBackgrounds = [];
+    for (let i = 1; i <= 17; i++) {
+        gameBackgrounds.push(`bg${i}.jpg`);
+    }
+    let bgIndex = 0;
+    let bgInterval = null;
 
+    let introMusic = null;
+    let gameMusic = null;
+
+    function playIntroMusic() {
+        try {
+            introMusic = new Audio('intro-music.mp3');
+            introMusic.loop = true;
+            introMusic.volume = 0.3;
+            introMusic.play().catch(e => console.log('intro-music.mp3 не найден'));
+        } catch(e) {}
+    }
+
+    function stopIntroMusic() {
+        if (introMusic) {
+            introMusic.pause();
+            introMusic = null;
+        }
+    }
+
+    function startGameMusic() {
+        try {
+            gameMusic = new Audio('game-music.mp3');
+            gameMusic.loop = true;
+            gameMusic.volume = 0.3;
+            gameMusic.play().catch(e => console.log('game-music.mp3 не найден'));
+        } catch(e) {}
+    }
+
+    function stopGameMusic() {
+        if (gameMusic) {
+            gameMusic.pause();
+            gameMusic = null;
+        }
+    }
+
+    function setGameBackground(bgName) {
+        const gameScreen = document.getElementById('gameScreen');
+        const img = new Image();
+        img.onload = () => {
+            gameScreen.style.backgroundImage = `url('${bgName}')`;
+            gameScreen.style.backgroundSize = 'cover';
+            gameScreen.style.backgroundPosition = 'center';
+        };
+        img.onerror = () => {
+            gameScreen.style.backgroundImage = '';
+            gameScreen.style.background = 'linear-gradient(rgba(10,15,30,0.85), rgba(5,10,25,0.9))';
+        };
+        img.src = bgName;
+    }
+
+    function startBackgroundRotation() {
+        if (bgInterval) clearInterval(bgInterval);
+        setGameBackground(gameBackgrounds[0]);
+        bgInterval = setInterval(() => {
+            bgIndex = (bgIndex + 1) % gameBackgrounds.length;
+            setGameBackground(gameBackgrounds[bgIndex]);
+        }, 10000);
+    }
+
+    const formulas = ['E=mc²', 'F=ma', '∫f(x)dx', 'πr²', 'a²+b²=c²', 'Δx·Δp≥ħ/2', 'v=s/t', 'PV=nRT'];
+    
+    function createFloatingFormulas() {
+        const intro = document.getElementById('introScreen');
+        for (let i = 0; i < 15; i++) {
+            const formula = document.createElement('div');
+            formula.className = 'formula';
+            formula.textContent = formulas[Math.floor(Math.random() * formulas.length)];
+            formula.style.left = Math.random() * 100 + '%';
+            formula.style.fontSize = (Math.random() * 20 + 14) + 'px';
+            formula.style.animationDuration = Math.random() * 12 + 8 + 's';
+            formula.style.animationDelay = Math.random() * 8 + 's';
+            intro.appendChild(formula);
+        }
+    }
+    
+    function createParticles() {
+        const intro = document.getElementById('introScreen');
+        for (let i = 0; i < 80; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 3 + 1;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 5 + 3 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.opacity = Math.random() * 0.6;
+            intro.appendChild(particle);
+        }
+    }
+    
+    createParticles();
+    createFloatingFormulas();
+    
+    const fullText = "Физмат-челлендж";
+    let textIndex = 0;
+    function typeWriter() {
+        const el = document.getElementById('typewriter');
+        if (textIndex < fullText.length) {
+            el.innerHTML += fullText.charAt(textIndex);
+            textIndex++;
+            setTimeout(typeWriter, 100);
+        } else {
+            setTimeout(() => {
+                document.getElementById('typewriterSub').classList.add('show');
+                document.getElementById('startIntroBtn').classList.add('show');
+            }, 300);
+        }
+    }
+    
+    setTimeout(() => {
+        const flash = document.getElementById('flash');
+        flash.style.opacity = '1';
+        setTimeout(() => { flash.style.opacity = '0'; }, 150);
+        document.getElementById('introLogo').classList.add('show');
+        setTimeout(() => {
+            typeWriter();
+            playIntroMusic();
+        }, 500);
+    }, 500);
+    
+    function playTransitionToLyceum() {
+        return new Promise((resolve) => {
+            const transitionDiv = document.getElementById('transitionScreen');
+            const lyceumZoom = document.getElementById('lyceumZoom');
+            transitionDiv.style.display = 'flex';
+            setTimeout(() => {
+                lyceumZoom.classList.add('show');
+                setTimeout(() => {
+                    transitionDiv.style.display = 'none';
+                    lyceumZoom.classList.remove('show');
+                    resolve();
+                }, 1500);
+            }, 2000);
+        });
+    }
+    
+    document.getElementById('startIntroBtn').addEventListener('click', async () => {
+        stopIntroMusic();
+        const flash = document.getElementById('flash');
+        flash.style.opacity = '1';
+        setTimeout(() => { flash.style.opacity = '0'; }, 200);
+        const intro = document.getElementById('introScreen');
+        intro.style.opacity = '0';
+        setTimeout(async () => {
+            intro.style.display = 'none';
+            await playTransitionToLyceum();
+            document.getElementById('gameScreen').style.display = 'block';
+            startGameMusic();
+            startBackgroundRotation();
+            startNewGame();
+        }, 1000);
+    });
+    
+    const QUESTION_BANK = [
+        { text: "Что тяжелее: 1 кг пуха или 1 кг железа?", options: ["Пух", "Железо", "Одинаково", "Зависит от места"], correct: 2, explanation: "Килограмм есть килограмм. Масса одинаковая.", comfort: "Не переживай, это ловушка, в которую попадается каждый второй!" },
+        { text: "Если вы подниметесь на гору высотой 1 км, вы похудеете?", options: ["Да, заметно", "Да, но совсем чуть-чуть", "Нет, вес не изменится", "Нет, даже потолстеете"], correct: 1, explanation: "Сила тяжести с высотой уменьшается, вес становится меньше на граммы.", comfort: "Отличная идея — худеть, гуляя в горы! Но придётся всё равно считать калории." },
+        { text: "Что быстрее нагреется на солнце: белая футболка или чёрная?", options: ["Белая", "Чёрная", "Одинаково", "Зависит от ветра"], correct: 1, explanation: "Чёрный цвет поглощает почти все лучи света и превращает их в тепло.", comfort: "Любишь чёрный? Летом это дорого обходится!" },
+        { text: "Как разделить 5 яблок между 5 детьми, чтобы одно осталось в корзине?", options: ["Отдать 4 яблока", "Отдать яблоки вместе с корзиной", "Съесть одно самому", "Так нельзя"], correct: 1, explanation: "Четырём детям отдать по яблоку, а пятому — яблоко вместе с корзиной.", comfort: "Хитрая логическая задачка. Теперь ты будешь знать — корзину тоже можно раздавать!" },
+        { text: "Что произойдёт с часами в сауне?", options: ["Начнут спешить", "Начнут отставать", "Остановятся", "Будут идти точно"], correct: 0, explanation: "Металлические детали от нагрева расширяются, часы спешат.", comfort: "Сауна — место для отдыха, а не для точного хронометража." },
+        { text: "Ускорение камня в верхней точке полёта?", options: ["0", "9,8 м/с² вниз", "9,8 м/с² вверх", "Зависит от массы"], correct: 1, explanation: "Ускорение свободного падения действует на камень всегда.", comfort: "Многие думают, что раз скорость ноль — то и ускорения нет. Но Земля никуда не девается!" },
+        { text: "Что длиннее: экватор или меридиан?", options: ["Экватор", "Меридиан", "Одинаково", "Неизвестно"], correct: 0, explanation: "Земля сплюснута у полюсов, поэтому экватор длиннее на 67 км.", comfort: "Разница настолько мала, что на картах её не видно." },
+        { text: "Почему металл кажется холоднее дерева в мороз?", options: ["Металл холоднее", "Металл быстрее отводит тепло", "Дерево нагревается", "Просто ощущение"], correct: 1, explanation: "Металл отлично проводит тепло и быстро «вытягивает» его из руки.", comfort: "Ты просто слишком честный: если холодно — сразу говоришь об этом." },
+        { text: "На сколько удлинить верёвку, чтобы она провисла на 1 м над Землёй?", options: ["6,28 м", "1 м", "628 м", "1 км"], correct: 0, explanation: "Из формулы C = 2πR увеличение радиуса на 1 м даёт удлинение на 2π ≈ 6,28 м.", comfort: "Интуиция подсказывала километры, а математика говорит — 6 метров. Удивительно!" },
+        { text: "Почему солнце утром и вечером кажется больше?", options: ["Оно ближе", "Иллюзия из-за горизонта", "Преломление света", "Меняет размер"], correct: 1, explanation: "На горизонте мы сравниваем солнце с деревьями и домами — оно кажется огромным.", comfort: "Твой глаз иногда обманывает тебя. И это нормально!" }
+    ];
+    
     let currentGameQuestions = [];
     let currentQIndex = 0;
     let currentChance = 0;
     let waitingForNext = false;
     let timeoutId = null;
-
-    const welcomeDiv = document.getElementById('welcomeScreen');
-    const gameDiv = document.getElementById('gameScreen');
-    const finalDiv = document.getElementById('finalScreen');
-    const startBtn = document.getElementById('startGameBtn');
-    const abortBtn = document.getElementById('abortGameBtn');
-    const restartFinalBtn = document.getElementById('restartBtn');
-    const submitContactBtn = document.getElementById('submitContactBtn');
-    const questionTextSpan = document.getElementById('questionText');
-    const optionsContainer = document.getElementById('optionsContainer');
-    const questionCounterSpan = document.getElementById('questionCounter');
-    const currentChanceSpan = document.getElementById('currentChance');
-    const feedbackArea = document.getElementById('feedbackArea');
-
+    
     function getRandomQuestions(count) {
         const shuffled = [...QUESTION_BANK];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -513,82 +538,48 @@
         }
         return shuffled.slice(0, count);
     }
-
-    function createConfetti() {
-        const container = document.createElement('div');
-        container.className = 'confetti-container';
-        document.body.appendChild(container);
-        for (let i = 0; i < 60; i++) {
-            const conf = document.createElement('div');
-            conf.className = 'confetti';
-            conf.style.left = Math.random() * 100 + '%';
-            conf.style.animationDelay = Math.random() * 0.5 + 's';
-            conf.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
-            conf.style.width = Math.random() * 8 + 6 + 'px';
-            conf.style.height = Math.random() * 8 + 6 + 'px';
-            container.appendChild(conf);
-        }
-        setTimeout(() => container.remove(), 3000);
-    }
-
+    
     function updateUIStats() {
-        questionCounterSpan.innerText = `Вопрос ${currentQIndex+1} / ${currentGameQuestions.length}`;
-        currentChanceSpan.innerText = currentChance;
-        currentChanceSpan.style.transform = 'scale(1.1)';
-        setTimeout(() => { if(currentChanceSpan) currentChanceSpan.style.transform = 'scale(1)'; }, 200);
+        document.getElementById('questionCounter').innerText = `Вопрос ${currentQIndex+1} / ${currentGameQuestions.length}`;
+        document.getElementById('currentChance').innerText = currentChance;
     }
-
+    
     function renderCurrentQuestion() {
         if (currentQIndex >= currentGameQuestions.length) {
             finishGame();
             return;
         }
         const q = currentGameQuestions[currentQIndex];
-        questionTextSpan.innerText = q.text;
-        questionTextSpan.classList.add('animate-fade-up');
-        setTimeout(() => questionTextSpan.classList.remove('animate-fade-up'), 500);
-        
-        optionsContainer.innerHTML = '';
+        document.getElementById('questionText').innerText = q.text;
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
         q.options.forEach((opt, idx) => {
             const btn = document.createElement('button');
-            btn.className = 'option-btn animate-slide-right';
+            btn.className = 'option-btn';
             btn.innerText = `${String.fromCharCode(65+idx)}. ${opt}`;
             btn.addEventListener('click', () => handleAnswer(idx));
-            optionsContainer.appendChild(btn);
+            container.appendChild(btn);
         });
-        if (!feedbackArea.classList.contains('hidden')) {
-            feedbackArea.classList.add('hidden');
-        }
-        feedbackArea.innerHTML = '';
+        document.getElementById('feedbackArea').classList.add('hidden');
         waitingForNext = false;
-        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('disabled-opt'));
     }
-
+    
     function handleAnswer(selectedIdx) {
         if (waitingForNext) return;
         const currentQ = currentGameQuestions[currentQIndex];
         const isCorrect = (selectedIdx === currentQ.correct);
         
         if (isCorrect) {
-            createConfetti();
             let newChance = currentChance + 18;
             if (newChance > 90) newChance = 90;
             currentChance = newChance;
-            feedbackArea.innerHTML = `<span style="color:#8effa5;">✅ ПРАВИЛЬНО!</span><br>📘 ${currentQ.explanation}<br>✨ ${currentQ.comfort}`;
-            const chanceSpan = document.getElementById('currentChance');
-            chanceSpan.classList.add('correct-highlight');
-            setTimeout(() => chanceSpan.classList.remove('correct-highlight'), 400);
+            document.getElementById('feedbackArea').innerHTML = `<span style="color:#8effa5;">✅ ПРАВИЛЬНО!</span><br>📘 ${currentQ.explanation}<br>✨ ${currentQ.comfort}`;
         } else {
             const correctLetter = String.fromCharCode(65+currentQ.correct);
-            const correctText = currentQ.options[currentQ.correct];
-            feedbackArea.innerHTML = `<span style="color:#ffae70;">❌ НЕПРАВИЛЬНО</span><br>Верный ответ: ${correctLetter}. ${correctText}<br>📘 ${currentQ.explanation}<br>💪 ${currentQ.comfort}`;
-            const container = document.querySelector('.game-container');
-            container.classList.add('animate-shake');
-            setTimeout(() => container.classList.remove('animate-shake'), 300);
+            document.getElementById('feedbackArea').innerHTML = `<span style="color:#ffae70;">❌ НЕПРАВИЛЬНО</span><br>Верный ответ: ${correctLetter}. ${currentQ.options[currentQ.correct]}<br>📘 ${currentQ.explanation}<br>💪 ${currentQ.comfort}`;
         }
-        feedbackArea.classList.remove('hidden');
-        const allOptBtns = document.querySelectorAll('.option-btn');
-        allOptBtns.forEach(btn => btn.classList.add('disabled-opt'));
+        document.getElementById('feedbackArea').classList.remove('hidden');
+        document.querySelectorAll('.option-btn').forEach(btn => btn.style.pointerEvents = 'none');
         waitingForNext = true;
         updateUIStats();
         
@@ -604,77 +595,37 @@
             timeoutId = null;
         }, 1500);
     }
-
+    
     function finishGame() {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
-        gameDiv.classList.add('hidden');
-        finalDiv.classList.remove('hidden');
-        finalDiv.classList.add('animate-fade-up');
-        const finalPercentSpan = document.getElementById('finalPercent');
-        finalPercentSpan.innerText = currentChance + '%';
-        let message = '';
-        if (currentChance >= 80) {
-            message = '🔥 Потрясающе! Ты настоящий физмат-боец. У тебя отличные шансы! Подай заявку прямо сейчас.';
-            createConfetti();
-        } else if (currentChance >= 50) {
-            message = '📚 Хороший результат! Подтяни пару тем и поступление станет реальностью. Не останавливайся!';
-        } else if (currentChance >= 20) {
-            message = '🌱 Неплохая попытка! Лицей ждёт мотивированных ребят. Приходи на подготовительные курсы!';
-        } else {
-            message = '✨ Не расстраивайся! Каждый ошибается. У нас дружный коллектив, поможет освоить программу. Попробуй ещё раз!';
-        }
-        document.getElementById('finalMessage').innerText = message;
+        if (timeoutId) clearTimeout(timeoutId);
+        if (bgInterval) clearInterval(bgInterval);
+        stopGameMusic();
+        const container = document.querySelector('#gameScreen .game-container');
+        container.innerHTML = `<div style="text-align:center; padding:40px;">
+            <div class="final-chance">${currentChance}%</div>
+            <p style="color:white; margin:20px;">Спасибо за игру! Твой шанс поступления — ${currentChance}%</p>
+            <button class="btn" onclick="location.reload()">🔄 Сыграть ещё раз</button>
+            <div class="contacts" style="margin-top:30px;">
+                <a href="https://lap-samara.ru" target="_blank">🌐 Сайт</a>
+                <a href="https://vk.com/lap135" target="_blank">📘 VK</a>
+                <a href="https://t.me/s/lap135" target="_blank">📱 Telegram</a>
+                <a href="tel:+78469954245">📞 Телефон</a>
+                <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank">📝 Форма поступления</a>
+            </div>
+        </div>`;
     }
-
+    
     function startNewGame() {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
         currentGameQuestions = getRandomQuestions(5);
         currentQIndex = 0;
         currentChance = 0;
         waitingForNext = false;
         updateUIStats();
-        welcomeDiv.classList.add('hidden');
-        finalDiv.classList.add('hidden');
-        gameDiv.classList.remove('hidden');
-        gameDiv.classList.add('animate-fade-up');
-        setTimeout(() => gameDiv.classList.remove('animate-fade-up'), 500);
-        feedbackArea.classList.add('hidden');
-        feedbackArea.innerHTML = '';
         renderCurrentQuestion();
     }
-
-    function backToWelcome() {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
-        welcomeDiv.classList.remove('hidden');
-        gameDiv.classList.add('hidden');
-        finalDiv.classList.add('hidden');
-        currentGameQuestions = [];
-        currentQIndex = 0;
-        currentChance = 0;
-        waitingForNext = false;
-    }
-
-    startBtn.addEventListener('click', startNewGame);
-    abortBtn.addEventListener('click', backToWelcome);
-    restartFinalBtn.addEventListener('click', startNewGame);
-    submitContactBtn.addEventListener('click', () => {
-        const contact = document.getElementById('contactInput').value.trim();
-        if (contact === '') {
-            alert('Пожалуйста, введите телефон или @username');
-            return;
-        }
-        console.log('Контакт абитуриента:', contact);
-        alert(`Спасибо! ${contact} — мы свяжемся с вами. Ждём в ЛАП №135!`);
-        document.getElementById('contactInput').value = '';
+    
+    document.getElementById('abortGameBtn').addEventListener('click', () => {
+        location.reload();
     });
 </script>
 </body>
