@@ -31,7 +31,7 @@
             align-items: center;
             transition: opacity 1.2s ease;
         }
-        /* Летающие формулы и частицы */
+        /* Летающие формулы */
         .formula {
             position: absolute;
             font-size: 1.4rem;
@@ -122,9 +122,9 @@
             z-index: 250;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.15s;
+            transition: opacity 0.2s;
         }
-        /* ПЕРЕХОД (спутник -> лицей) */
+        /* ПЕРЕХОД: спутник + лицей */
         #transitionScreen {
             position: fixed;
             top: 0;
@@ -133,33 +133,43 @@
             height: 100%;
             z-index: 300;
             display: none;
-            background: #000;
+            background: black;
+            overflow: hidden;
         }
-        .satellite-view {
+        .satellite-container {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #0a0f2a, #000);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1;
+            transition: transform 2s ease;
+            transform: scale(1);
         }
-        .satellite-view img {
+        .satellite-container.zoom {
+            transform: scale(1.8);
+        }
+        .satellite-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
         .satellite-text {
             position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            text-align: center;
             color: white;
             background: rgba(0,0,0,0.6);
             padding: 8px 16px;
+            width: fit-content;
+            margin: 0 auto;
             border-radius: 30px;
-            bottom: 50px;
             font-family: monospace;
+            z-index: 2;
         }
-        .lyceum-zoom {
+        .lyceum-container {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -167,13 +177,13 @@
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transform: scale(1.5);
-            transition: all 1.5s ease-out;
-            z-index: 2;
-            background: #000;
+            transition: opacity 0.8s ease;
+            background: black;
         }
-        .lyceum-zoom.show { opacity: 1; transform: scale(1); }
-        .lyceum-zoom img {
+        .lyceum-container.show {
+            opacity: 1;
+        }
+        .lyceum-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -260,6 +270,20 @@
             text-decoration: none;
             margin: 0 8px;
         }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border-radius: 60px;
+            background: #0a1022;
+            border: 1px solid #2f5582;
+            color: white;
+            margin: 16px 0;
+        }
+        .flex-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
         .hidden { display: none; }
         @media (max-width: 550px) {
             .typewriter-text { font-size: 1.8rem; }
@@ -279,13 +303,13 @@
     <button class="btn-start" id="startIntroBtn">🚀 Начать!</button>
 </div>
 
-<!-- ПЕРЕХОД -->
+<!-- ПЕРЕХОД (спутник -> приближение -> вспышка -> лицей) -->
 <div id="transitionScreen">
-    <div class="satellite-view">
+    <div class="satellite-container" id="satelliteContainer">
         <img src="satellite.jpg" alt="Спутник" onerror="this.style.display='none'">
         <div class="satellite-text">🛰️ Снимок со спутника...</div>
     </div>
-    <div class="lyceum-zoom" id="lyceumZoom">
+    <div class="lyceum-container" id="lyceumContainer">
         <img src="lyceum.jpg" alt="Лицей №135" onerror="this.style.display='none'">
     </div>
 </div>
@@ -346,6 +370,7 @@
             gs.style.backgroundPosition = 'center';
         };
         img.onerror = () => {
+            // если картинка не загрузилась, ставим градиент
             gs.style.backgroundImage = '';
             gs.style.background = 'linear-gradient(rgba(10,15,30,0.85), rgba(5,10,25,0.9))';
         };
@@ -423,19 +448,37 @@
         }, 500);
     }, 500);
 
-    // === ПЕРЕХОД "СПУТНИК → ЛИЦЕЙ" ===
-    function playTransitionToLyceum() {
+    // === НОВЫЙ ПЕРЕХОД: спутник -> приближение -> вспышка -> лицей ===
+    function playTransition() {
         return new Promise((resolve) => {
-            const td = document.getElementById('transitionScreen');
-            const lz = document.getElementById('lyceumZoom');
-            td.style.display = 'flex';
+            const transitionDiv = document.getElementById('transitionScreen');
+            const satContainer = document.getElementById('satelliteContainer');
+            const lyceumContainer = document.getElementById('lyceumContainer');
+            const flashElem = document.getElementById('flash');
+            
+            transitionDiv.style.display = 'block';
+            // через 0.1 сек начинаем зум спутника
             setTimeout(() => {
-                lz.classList.add('show');
+                satContainer.classList.add('zoom');
+            }, 100);
+            // через 2 секунды — белая вспышка
+            setTimeout(() => {
+                flashElem.style.opacity = '1';
                 setTimeout(() => {
-                    td.style.display = 'none';
-                    lz.classList.remove('show');
+                    flashElem.style.opacity = '0';
+                }, 300);
+                // скрываем спутник, показываем лицей
+                satContainer.style.display = 'none';
+                lyceumContainer.classList.add('show');
+                // через 1 секунду убираем переход и запускаем игру
+                setTimeout(() => {
+                    transitionDiv.style.display = 'none';
+                    // сброс для будущих запусков
+                    satContainer.classList.remove('zoom');
+                    satContainer.style.display = 'flex';
+                    lyceumContainer.classList.remove('show');
                     resolve();
-                }, 1500);
+                }, 1000);
             }, 2000);
         });
     }
@@ -450,7 +493,7 @@
         intro.style.opacity = '0';
         setTimeout(async () => {
             intro.style.display = 'none';
-            await playTransitionToLyceum();
+            await playTransition();
             document.getElementById('gameScreen').style.display = 'block';
             startGameMusic();
             startBackgroundRotation();
@@ -458,7 +501,7 @@
         }, 1000);
     });
 
-    // === БАНК ВОПРОСОВ (10 шт) ===
+    // === БАНК ВОПРОСОВ ===
     const QUESTION_BANK = [
         { text: "Что тяжелее: 1 кг пуха или 1 кг железа?", options: ["Пух", "Железо", "Одинаково", "Зависит от места"], correct: 2, explanation: "Килограмм есть килограмм. Масса одинаковая.", comfort: "Не переживай, это ловушка, в которую попадается каждый второй!" },
         { text: "Если вы подниметесь на гору высотой 1 км, вы похудеете?", options: ["Да, заметно", "Да, но совсем чуть-чуть", "Нет, вес не изменится", "Нет, даже потолстеете"], correct: 1, explanation: "Сила тяжести с высотой уменьшается, вес становится меньше на граммы.", comfort: "Отличная идея — худеть, гуляя в горы! Но придётся всё равно считать калории." },
@@ -546,12 +589,12 @@
         container.innerHTML = `<div style="text-align:center; padding:40px;">
             <div class="final-chance">${currentChance}%</div>
             <p style="color:white; margin:20px;">Спасибо за игру! Твой шанс поступления — ${currentChance}%</p>
-            <input type="text" id="contactInput" class="input-field" placeholder="Телефон или @username" style="width:100%; padding:12px; border-radius:60px; background:#0a1022; border:1px solid #2f5582; color:white; margin:16px 0;">
-            <div class="flex-row" style="display:flex; gap:12px; flex-wrap:wrap;">
-                <button class="btn" id="submitContactBtn" style="flex:1;">📩 Оставить контакт</button>
-                <button class="btn" id="restartBtn" style="flex:1;">🔄 Сыграть ещё раз</button>
+            <input type="text" id="contactInput" class="input-field" placeholder="Телефон или @username">
+            <div class="flex-row">
+                <button class="btn" id="submitContactBtn">📩 Оставить контакт</button>
+                <button class="btn" id="restartBtn">🔄 Сыграть ещё раз</button>
             </div>
-            <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank" class="apply-link" style="display:inline-block; background:#2b5f9e; padding:12px; border-radius:40px; color:white; text-decoration:none; margin-top:20px;">📝 Подать заявку через форму Яндекс</a>
+            <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank" class="apply-link" style="display:inline-block; background:#2b5f9e; padding:12px 24px; border-radius:40px; color:white; text-decoration:none; margin-top:20px;">📝 Подать заявку через форму Яндекс</a>
             <div class="contacts" style="margin-top:24px;">
                 <a href="https://lap-samara.ru" target="_blank">🌐 Сайт</a>
                 <a href="https://vk.com/lap135" target="_blank">📘 VK</a>
@@ -559,9 +602,8 @@
                 <a href="tel:+78469954245">📞 Телефон</a>
             </div>
         </div>`;
-        // вешаем обработчики на новые кнопки
         document.getElementById('submitContactBtn')?.addEventListener('click', () => {
-            const contact = document.getElementById('contactInput')?.value.trim() || '';
+            const contact = document.getElementById('contactInput')?.value.trim();
             if (!contact) alert('Введите контакт');
             else { console.log('Контакт:', contact); alert(`Спасибо! ${contact} — мы свяжемся с вами.`); }
         });
