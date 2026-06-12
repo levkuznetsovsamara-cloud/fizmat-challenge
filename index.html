@@ -2,21 +2,22 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Физмат-челлендж | ЛАП №135</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
-            min-height: 100vh;
             background: #0a0c1a;
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        /* ЗАСТАВКА (только градиент) */
+        /* ===== ЗАСТАВКА (только градиент) ===== */
         #introScreen {
             position: fixed;
             top: 0;
@@ -31,7 +32,6 @@
             align-items: center;
             transition: opacity 1.2s ease;
         }
-        /* Летающие формулы */
         .formula {
             position: absolute;
             font-size: 1.4rem;
@@ -124,7 +124,7 @@
             pointer-events: none;
             transition: opacity 0.2s;
         }
-        /* ПЕРЕХОД: спутник + лицей */
+        /* ===== ПЕРЕХОД (спутник → лицей) ===== */
         #transitionScreen {
             position: fixed;
             top: 0;
@@ -146,9 +146,7 @@
             transition: transform 2s ease;
             transform: scale(1);
         }
-        .satellite-container.zoom {
-            transform: scale(1.8);
-        }
+        .satellite-container.zoom { transform: scale(1.8); }
         .satellite-container img {
             width: 100%;
             height: 100%;
@@ -180,15 +178,13 @@
             transition: opacity 0.8s ease;
             background: black;
         }
-        .lyceum-container.show {
-            opacity: 1;
-        }
+        .lyceum-container.show { opacity: 1; }
         .lyceum-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        /* ИГРОВОЙ ЭКРАН */
+        /* ===== ИГРОВОЙ ЭКРАН ===== */
         #gameScreen {
             min-height: 100vh;
             display: none;
@@ -284,11 +280,20 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-        .hidden { display: none; }
+        .apply-link {
+            display: inline-block;
+            background: #2b5f9e;
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+        }
         @media (max-width: 550px) {
             .typewriter-text { font-size: 1.8rem; }
             .btn-start { padding: 12px 32px; font-size: 1.2rem; }
             .question-text { font-size: 1.2rem; }
+            .game-container { padding: 18px; }
         }
     </style>
 </head>
@@ -303,7 +308,7 @@
     <button class="btn-start" id="startIntroBtn">🚀 Начать!</button>
 </div>
 
-<!-- ПЕРЕХОД (спутник -> приближение -> вспышка -> лицей) -->
+<!-- ПЕРЕХОД -->
 <div id="transitionScreen">
     <div class="satellite-container" id="satelliteContainer">
         <img src="satellite.jpg" alt="Спутник" onerror="this.style.display='none'">
@@ -329,36 +334,21 @@
 </div>
 
 <script>
-    // === ФОНЫ: 17 штук, переключение каждые 10 секунд ===
+    // ========== ФОНЫ (17 шт, смена каждые 10 сек) ==========
     const gameBackgrounds = [];
     for (let i = 1; i <= 17; i++) gameBackgrounds.push(`bg${i}.jpg`);
     let bgIndex = 0, bgInterval = null;
 
-    // === МУЗЫКА (опционально) ===
+    // ========== МУЗЫКА (опционально) ==========
     let introMusic = null, gameMusic = null;
-
     function playIntroMusic() {
-        try {
-            introMusic = new Audio('intro-music.mp3');
-            introMusic.loop = true;
-            introMusic.volume = 0.3;
-            introMusic.play().catch(() => {});
-        } catch(e) {}
+        try { introMusic = new Audio('intro-music.mp3'); introMusic.loop = true; introMusic.volume = 0.3; introMusic.play().catch(()=>{}); } catch(e) {}
     }
-    function stopIntroMusic() {
-        if (introMusic) { introMusic.pause(); introMusic = null; }
-    }
+    function stopIntroMusic() { if(introMusic) { introMusic.pause(); introMusic = null; } }
     function startGameMusic() {
-        try {
-            gameMusic = new Audio('game-music.mp3');
-            gameMusic.loop = true;
-            gameMusic.volume = 0.3;
-            gameMusic.play().catch(() => {});
-        } catch(e) {}
+        try { gameMusic = new Audio('game-music.mp3'); gameMusic.loop = true; gameMusic.volume = 0.3; gameMusic.play().catch(()=>{}); } catch(e) {}
     }
-    function stopGameMusic() {
-        if (gameMusic) { gameMusic.pause(); gameMusic = null; }
-    }
+    function stopGameMusic() { if(gameMusic) { gameMusic.pause(); gameMusic = null; } }
 
     // установка фона игры (если картинки нет — градиент)
     function setGameBackground(bgName) {
@@ -370,7 +360,6 @@
             gs.style.backgroundPosition = 'center';
         };
         img.onerror = () => {
-            // если картинка не загрузилась, ставим градиент
             gs.style.backgroundImage = '';
             gs.style.background = 'linear-gradient(rgba(10,15,30,0.85), rgba(5,10,25,0.9))';
         };
@@ -378,7 +367,7 @@
     }
 
     function startBackgroundRotation() {
-        if (bgInterval) clearInterval(bgInterval);
+        if(bgInterval) clearInterval(bgInterval);
         setGameBackground(gameBackgrounds[0]);
         bgInterval = setInterval(() => {
             bgIndex = (bgIndex + 1) % gameBackgrounds.length;
@@ -386,7 +375,38 @@
         }, 10000);
     }
 
-    // === ЛЕТАЮЩИЕ ФОРМУЛЫ И ЧАСТИЦЫ ===
+    // ========== КОНФЕТТИ ==========
+    function createConfetti() {
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '1000';
+        container.style.overflow = 'hidden';
+        document.body.appendChild(container);
+        for (let i = 0; i < 100; i++) {
+            const conf = document.createElement('div');
+            conf.style.position = 'absolute';
+            conf.style.width = (Math.random() * 8 + 6) + 'px';
+            conf.style.height = (Math.random() * 8 + 6) + 'px';
+            conf.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+            conf.style.left = Math.random() * 100 + '%';
+            conf.style.top = '-20px';
+            conf.style.borderRadius = '2px';
+            conf.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear forwards`;
+            container.appendChild(conf);
+        }
+        setTimeout(() => container.remove(), 3000);
+    }
+    // Добавляем keyframes для конфетти
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `@keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }`;
+    document.head.appendChild(styleSheet);
+
+    // ========== ЛЕТАЮЩИЕ ФОРМУЛЫ ==========
     const formulas = ['E=mc²', 'F=ma', '∫f(x)dx', 'πr²', 'a²+b²=c²', 'Δx·Δp≥ħ/2', 'v=s/t', 'PV=nRT'];
     function createFloatingFormulas() {
         const intro = document.getElementById('introScreen');
@@ -407,8 +427,7 @@
             const p = document.createElement('div');
             p.className = 'particle';
             const s = Math.random() * 3 + 1;
-            p.style.width = s + 'px';
-            p.style.height = s + 'px';
+            p.style.width = s + 'px'; p.style.height = s + 'px';
             p.style.left = Math.random() * 100 + '%';
             p.style.animationDuration = Math.random() * 5 + 3 + 's';
             p.style.animationDelay = Math.random() * 5 + 's';
@@ -419,7 +438,7 @@
     createParticles();
     createFloatingFormulas();
 
-    // === ПЕЧАТНЫЙ ТЕКСТ ===
+    // ========== ПЕЧАТНЫЙ ТЕКСТ ==========
     const fullText = "Физмат-челлендж";
     let textIndex = 0;
     function typeWriter() {
@@ -435,55 +454,40 @@
             }, 300);
         }
     }
-
-    // Вспышка и появление логотипа
     setTimeout(() => {
         const flash = document.getElementById('flash');
         flash.style.opacity = '1';
         setTimeout(() => { flash.style.opacity = '0'; }, 150);
         document.getElementById('introLogo').classList.add('show');
-        setTimeout(() => {
-            typeWriter();
-            playIntroMusic();
-        }, 500);
+        setTimeout(() => { typeWriter(); playIntroMusic(); }, 500);
     }, 500);
 
-    // === НОВЫЙ ПЕРЕХОД: спутник -> приближение -> вспышка -> лицей ===
+    // ========== ПЕРЕХОД ==========
     function playTransition() {
         return new Promise((resolve) => {
-            const transitionDiv = document.getElementById('transitionScreen');
-            const satContainer = document.getElementById('satelliteContainer');
-            const lyceumContainer = document.getElementById('lyceumContainer');
+            const td = document.getElementById('transitionScreen');
+            const satCont = document.getElementById('satelliteContainer');
+            const lycCont = document.getElementById('lyceumContainer');
             const flashElem = document.getElementById('flash');
-            
-            transitionDiv.style.display = 'block';
-            // через 0.1 сек начинаем зум спутника
-            setTimeout(() => {
-                satContainer.classList.add('zoom');
-            }, 100);
-            // через 2 секунды — белая вспышка
+            td.style.display = 'block';
+            setTimeout(() => { satCont.classList.add('zoom'); }, 100);
             setTimeout(() => {
                 flashElem.style.opacity = '1';
+                setTimeout(() => { flashElem.style.opacity = '0'; }, 300);
+                satCont.style.display = 'none';
+                lycCont.classList.add('show');
                 setTimeout(() => {
-                    flashElem.style.opacity = '0';
-                }, 300);
-                // скрываем спутник, показываем лицей
-                satContainer.style.display = 'none';
-                lyceumContainer.classList.add('show');
-                // через 1 секунду убираем переход и запускаем игру
-                setTimeout(() => {
-                    transitionDiv.style.display = 'none';
-                    // сброс для будущих запусков
-                    satContainer.classList.remove('zoom');
-                    satContainer.style.display = 'flex';
-                    lyceumContainer.classList.remove('show');
+                    td.style.display = 'none';
+                    satCont.classList.remove('zoom');
+                    satCont.style.display = 'flex';
+                    lycCont.classList.remove('show');
                     resolve();
                 }, 1000);
             }, 2000);
         });
     }
 
-    // === КНОПКА "НАЧАТЬ!" ===
+    // ========== КНОПКА СТАРТ ==========
     document.getElementById('startIntroBtn').addEventListener('click', async () => {
         stopIntroMusic();
         const flash = document.getElementById('flash');
@@ -501,7 +505,7 @@
         }, 1000);
     });
 
-    // === БАНК ВОПРОСОВ ===
+    // ========== БАНК ВОПРОСОВ (10 шт) ==========
     const QUESTION_BANK = [
         { text: "Что тяжелее: 1 кг пуха или 1 кг железа?", options: ["Пух", "Железо", "Одинаково", "Зависит от места"], correct: 2, explanation: "Килограмм есть килограмм. Масса одинаковая.", comfort: "Не переживай, это ловушка, в которую попадается каждый второй!" },
         { text: "Если вы подниметесь на гору высотой 1 км, вы похудеете?", options: ["Да, заметно", "Да, но совсем чуть-чуть", "Нет, вес не изменится", "Нет, даже потолстеете"], correct: 1, explanation: "Сила тяжести с высотой уменьшается, вес становится меньше на граммы.", comfort: "Отличная идея — худеть, гуляя в горы! Но придётся всё равно считать калории." },
@@ -532,10 +536,7 @@
     }
 
     function renderCurrentQuestion() {
-        if (currentQIndex >= currentGameQuestions.length) {
-            finishGame();
-            return;
-        }
+        if (currentQIndex >= currentGameQuestions.length) { finishGame(); return; }
         const q = currentGameQuestions[currentQIndex];
         document.getElementById('questionText').innerText = q.text;
         const container = document.getElementById('optionsContainer');
@@ -559,8 +560,12 @@
             let newChance = currentChance + 18;
             if (newChance > 90) newChance = 90;
             currentChance = newChance;
+            createConfetti();   // <=== КОНФЕТТИ
             document.getElementById('feedbackArea').innerHTML = `<span style="color:#8effa5;">✅ ПРАВИЛЬНО!</span><br>📘 ${q.explanation}<br>✨ ${q.comfort}`;
         } else {
+            // лёгкая тряска экрана
+            document.getElementById('gameScreen').classList.add('animate-shake');
+            setTimeout(() => document.getElementById('gameScreen').classList.remove('animate-shake'), 300);
             const correctLetter = String.fromCharCode(65+q.correct);
             document.getElementById('feedbackArea').innerHTML = `<span style="color:#ffae70;">❌ НЕПРАВИЛЬНО</span><br>Верный ответ: ${correctLetter}. ${q.options[q.correct]}<br>📘 ${q.explanation}<br>💪 ${q.comfort}`;
         }
@@ -594,7 +599,7 @@
                 <button class="btn" id="submitContactBtn">📩 Оставить контакт</button>
                 <button class="btn" id="restartBtn">🔄 Сыграть ещё раз</button>
             </div>
-            <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank" class="apply-link" style="display:inline-block; background:#2b5f9e; padding:12px 24px; border-radius:40px; color:white; text-decoration:none; margin-top:20px;">📝 Подать заявку через форму Яндекс</a>
+            <a href="https://forms.yandex.ru/u/69d495094936395d76329310/" target="_blank" class="apply-link">📝 Подать заявку через форму Яндекс</a>
             <div class="contacts" style="margin-top:24px;">
                 <a href="https://lap-samara.ru" target="_blank">🌐 Сайт</a>
                 <a href="https://vk.com/lap135" target="_blank">📘 VK</a>
